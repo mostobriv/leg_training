@@ -1,2 +1,2 @@
 # leg_training
-A/D training
+@yalegko's A/D training by `pid||kill` team
