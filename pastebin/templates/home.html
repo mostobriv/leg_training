@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="panel-heading">
+      <h2>Public Pastes:</h2>
+    </div>
+    {% for paste in pastes %}
+        <article class="media content-section">
+          <div class="media-body" >
+            <div class="article-metadata">
+              <small class="text-muted">{{ paste.date_posted.strftime('%Y-%m-%d') }}</small>
+            </div>
+              <h5><a class="article-title" href="{{ url_for('paste', paste_uuid=paste.uu_id) }}">{{ paste.title }}</a></h5>
+            <p class="article-content">{{ highlighter(paste.content, paste.lang) | safe }}</p>
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

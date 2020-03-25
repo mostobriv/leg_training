@@ -1,0 +1,4 @@
+venv/
+whoosh_index/
+whooshee
+pastebin/__pycache__/
