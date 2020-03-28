@@ -95,8 +95,6 @@ def put(*args):
 	team_ip, _, flag = args[:3]
 	SERVICE_URL = "http://{}:{}".format(team_ip, SERVICE_PORT)
 	with requests.Session() as session:
-		session.proxies = {"http": "127.0.0.1:8080", "https": "127.0.0.1:8080"}
-		session.verify = False
 		resp = session.get(SERVICE_URL + "/paste/new")
 		csrf_token = CSRFGetter(resp.text).csrf_token
 		lang, content, title = generate_flag_paste(flag)
