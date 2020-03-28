@@ -33,9 +33,9 @@ class CSRFGetter(HTMLParser):
 		self.feed(markup)
 
 	def handle_starttag(self, tag, attrs):
-		if self.csrf_token is None:
+		if self.csrf_token is None and tag == "input":
 			attrs = dict(attrs)
-			if tag == "input" and attrs.get("id") == "csrf_token":
+			if attrs.get("id") == "csrf_token":
 				self.csrf_token = attrs["value"]
 
 
