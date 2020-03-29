@@ -45,6 +45,7 @@ class CodeGetter(HTMLParser):
 		self._recording = None
 		self.code = ""
 		self.feed(markup)
+		self.code = self.code.strip()
 
 	def handle_starttag(self, tag, attrs):
 		if self._recording is None and tag == "div":
@@ -63,7 +64,6 @@ class CodeGetter(HTMLParser):
 			self._recording = False
 		elif tag == "div" and self._recording == False:
 			self._recording = None
-			self.code = self.code.strip()
 
 
 def close(code, public=None, private=None):
