@@ -134,7 +134,7 @@ def check(*args):
 		flag_id = resp.url.split("/")[-1]
 
 	# Поиск созданной пасты
-	resp = requests.get(SERVICE_URL, params={"query": title})
+	resp = requests.get(SERVICE_URL + "/search", params={"query": title})
 	if title not in resp.text:
 		close(MUMBLE, "Paste not found through the search")
 
