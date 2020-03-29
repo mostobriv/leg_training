@@ -47,7 +47,7 @@ class CodeGetter(HTMLParser):
 		self.feed(markup)
 
 	def handle_starttag(self, tag, attrs):
-		if tag == "div":
+		if self._recording is None and tag == "div":
 			attrs = dict(attrs)
 			if attrs.get("class") == "highlight":
 				self._recording = False
@@ -61,7 +61,7 @@ class CodeGetter(HTMLParser):
 	def handle_endtag(self, tag):
 		if tag == "pre" and self._recording == True:
 			self._recording = False
-		if tag == "div" and self._recording == False:
+		elif tag == "div" and self._recording == False:
 			self._recording = None
 			self.code = self.code.strip()
 
