@@ -8,6 +8,8 @@ from mimesis import Generic
 import random
 import json
 import re
+from math import gcd
+from ast import literal_eval
 generic = Generic("en")
 
 
@@ -20,10 +22,46 @@ SNIPPETS = {
 			"content": """def get_flag():
     what_is_it = {}
     return ''.join(map(lambda x: chr(x ^ {}), what_is_it))""",
-			"title": "Paste by {}"
+			"title": "Python paste by {}"
 		},
 	],
+	"c": [
+		{
+			"content": """char* get_flag()
+{{
+    char is_it_a_flag_or_not[] = "{}";
+    char key[] = "{}";
+    char result[33] = {{ 0 }};
+
+    for (int i = 0; i < 32; i++)
+    {{
+        result[i] = (is_it_a_flag_or_not[i] * key[i]) % 256;
+    }}
+
+    return result;
+}}""",
+			"title": "C paste by {}"
+		}
+	]
 }
+
+C_ALLOW_KEYS = [i for i in range(2, 256) if gcd(i, 256) == 1]
+
+
+def egcd(a: int, b: int) -> tuple:
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, y, x = egcd(b % a, a)
+        return (g, x - (b // a) * y, y)
+
+
+def modinv(a: int, m: int) -> int:
+    g, x, y = egcd(a, m)
+    if g != 1:
+        raise Exception('modular inverse does not exist')
+    else:
+        return x % m
 
 
 class CSRFGetter(HTMLParser):
@@ -86,9 +124,17 @@ def generate_paste():
 def generate_flag_paste(flag):
 	lang = random.choice(list(SNIPPETS))
 	content_title = random.choice(SNIPPETS[lang])
-	key = random.getrandbits(8)
-	flag_repr = str([ord(letter) ^ key for letter in flag])
-	return lang, content_title["content"].format(flag_repr, key), content_title["title"].format(generic.person.username())
+	if lang == "python":
+		key = random.getrandbits(8)
+		flag_repr = str([ord(letter) ^ key for letter in flag])
+		return lang, content_title["content"].format(flag_repr, key), content_title["title"].format(generic.person.username())
+	elif lang == "c":
+		decrypt_key = random.choices(C_ALLOW_KEYS, k=32)
+		encrypt_key = list(map(lambda k: modinv(k, 256), decrypt_key))
+		encrypted_flag = map(lambda x, k: (ord(x) * k) % 256, flag, encrypt_key)
+		encrypted_flag = "".join(map("\\x{:02x}".format, encrypted_flag))
+		decrypt_key = "".join(map("\\x{:02x}".format, decrypt_key))
+		return lang, content_title["content"].format(encrypted_flag, decrypt_key), content_title["title"].format(generic.person.username())
 
 
 def put(*args):
@@ -109,8 +155,8 @@ def put(*args):
 		resp = session.post(SERVICE_URL + "/paste/new", data=new_paste_data)
 		if "Your paste has been created!" not in resp.text:
 			close(MUMBLE, "Paste didnt created")
-		flag_id = resp.url.split("/")[-1]
-		close(OK, flag_id)
+		token = resp.url.split("/")[-1] + ":" + lang
+		close(OK, token)
 
 
 def check(*args):
@@ -153,22 +199,39 @@ def check(*args):
 def get(*args):
 	team_ip, token, flag = args[:3]
 	SERVICE_URL = "http://{}:{}".format(team_ip, SERVICE_PORT)
-	resp = requests.get(SERVICE_URL + "/paste/" + token)
+	flag_id, lang = token.split(":")
+	resp = requests.get(SERVICE_URL + "/paste/" + flag_id)
 	code_snippet = CodeGetter(resp.text).code
-	flag_repr = re.search(r"\[[\d, ]+\]", code_snippet)
-	if flag_repr is not None:
-		flag_repr = json.loads(flag_repr.group())
-	else:
-		close(CORRUPT, "Encrypted flag not found")
-	key = re.search(r"chr\(x \^ (\d+)\)", code_snippet)
-	if key is not None:
-		key = int(key.group(1))
-	else:
-		close(CORRUPT, "Key for flag encrypt not found")
-	if flag == "".join(chr(x ^ key) for x in flag_repr):
-		close("OK")
-	else:
-		close(CORRUPT, "Decrypted flag doesnt match expected flag")
+	if lang == "python":
+		flag_repr = re.search(r"\[[\d, ]+\]", code_snippet)
+		if flag_repr is not None:
+			flag_repr = json.loads(flag_repr.group())
+		else:
+			close(CORRUPT, "Encrypted flag not found")
+		key = re.search(r"chr\(x \^ (\d+)\)", code_snippet)
+		if key is not None:
+			key = int(key.group(1))
+		else:
+			close(CORRUPT, "Key for flag encrypt not found")
+		if flag == "".join(chr(x ^ key) for x in flag_repr):
+			close(OK)
+		else:
+			close(CORRUPT, "Decrypted flag doesnt match expected flag")
+	elif lang == "c":
+		flag_repr = re.search(r"flag_or_not\[\] = (\"[\\x0-9a-f]+\");", code_snippet)
+		if flag_repr is not None:
+			flag_repr = literal_eval(flag_repr.group(1))
+		else:
+			close(CORRUPT, "Encrypted flag not found")
+		key = re.search(r"key\[\] = (\"[\\x0-9a-f]+\");", code_snippet)
+		if key is not None:
+			key = literal_eval(key.group(1))
+		else:
+			close(CORRUPT, "Key for flag decrypt not found")
+		if flag == "".join(map(lambda c, k: chr((c*k)%256), map(ord, flag_repr), map(ord, key))):
+			close(OK)
+		else:
+			close(CORRUPT, "Decrypted flag doesnt match expected flag")
 
 
 def info(*args):
