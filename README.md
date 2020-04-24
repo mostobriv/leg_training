@@ -1,5 +1,5 @@
 # legs_training
-@yalegko's A/D training prepared by `pid||kill` team w/ help of [@elmikuliofondesashkin](https://github.com/mikulinsky)
+[@yalegko](https://github.com/yalegko)'s A/D training prepared by `pid||kill` team w/ help of [@elmikuliofondesashkin](https://github.com/mikulinsky)
 
 ## Services
 | Service | Language | Checker | Sploits | Authors |
