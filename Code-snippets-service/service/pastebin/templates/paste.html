@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+  <article class="media content-section">
+    <div class="media-body">
+      <div class="article-metadata">
+        <small class="text-muted">{{ paste.date_posted.strftime('%Y-%m-%d') }}</small>
+      </div>
+      <h2 class="article-title">{{ paste.title }}</h2>
+      <p class="article-content">{{ highlighter(paste.content, paste.lang) | safe}}</p>
+    </div>
+  </article>
+{% endblock content %}

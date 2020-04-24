@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="{{ url_for('new_paste') }}">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">            
+                 <!-- Paste field form -->
+                 <div class="form-group">
+                    {{ form.content.label(class="form-control-label") }}
+                    {{ form.content(rows='9', class="form-control form-control-lg") }}
+                </div>
+
+                <div class="container">
+                    <!-- Title field form -->
+                    <div class="form-group">
+                        {{ form.title.label(class="form-control-label") }}
+                        {{ form.title(class="form-control-sm") }}
+                    </div>
+
+                    {{ form.lang.label(class="form-control-label") }} {{ form.lang }}
+                    <div class="form-check">
+                            {{ form.private(class="form-check-input") }}
+                            {{ form.private.label(class="form-check-label") }}
+                    </div> 
+                </div>
+            </fieldset>
+            <div class="container">
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

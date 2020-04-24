@@ -1,0 +1,17 @@
+click==7.1.1
+Flask==1.0
+Flask-SQLAlchemy==2.3.2
+flask-whooshee==0.7.0
+Flask-WTF==0.14.2
+itsdangerous==0.24
+Jinja2==2.10
+jinja2-base64-filters==0.1.2
+jinja2-highlight==0.6.1
+MarkupSafe==1.0
+pycparser==2.18
+Pygments==2.6.1
+six==1.11.0
+SQLAlchemy==1.2.7
+Werkzeug==0.14.1
+Whoosh==2.7.4
+WTForms==2.1
