@@ -1,0 +1,13 @@
+version: "2.4"
+
+services:
+    restful_pieces:
+        build:
+            context: ./service
+        ports:
+            - 17649:17649
+        restart: on-failure
+        pids_limit: 256
+        mem_limit: 500M
+        cpus: 0.5
+        
