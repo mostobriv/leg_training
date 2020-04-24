@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  snippets:
+    build: service
+    restart: always
+    volumes:
+     - ./service:/app
+    ports:
+     - 9091:9091
