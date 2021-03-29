@@ -9,7 +9,7 @@ jinja2-base64-filters==0.1.2
 jinja2-highlight==0.6.1
 MarkupSafe==1.0
 pycparser==2.18
-Pygments==2.6.1
+Pygments==2.7.4
 six==1.11.0
 SQLAlchemy==1.2.7
 Werkzeug==0.14.1
